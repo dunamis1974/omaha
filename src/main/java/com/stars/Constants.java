@@ -18,7 +18,7 @@ public class Constants {
     /**
      * Card ratings
      */
-    public static final Map<String , Integer> RATINGS = new HashMap<String, Integer>() {{
+    public static final Map<String, Integer> RATINGS = new HashMap<String, Integer>() {{
         put("2", 2);
         put("3", 3);
         put("4", 4);
@@ -39,7 +39,7 @@ public class Constants {
      * Suit ratings
      * This is not used in Poker for real rating but only for numerical representation of the suit.
      */
-    public static final Map<String , Integer> COLORS = new HashMap<String, Integer>() {{
+    public static final Map<String, Integer> COLORS = new HashMap<String, Integer>() {{
         put("c", 1);
         put("d", 2);
         put("h", 3);

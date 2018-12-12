@@ -1,7 +1,7 @@
 package com.stars;
 
 /**
- * Hand enum contains the hand ratings
+ * HandOmaha enum contains the hand ratings
  * and descriptions
  */
 public enum HandEnum {

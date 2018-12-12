@@ -1,9 +1,8 @@
 package com.stars;
 
 import com.stars.entities.Card;
-import com.stars.entities.Hand;
-import com.stars.errors.ErrorCard;
-import com.stars.errors.ErrorHand;
+import com.stars.entities.HandOmaha;
+import com.stars.interfaces.Processor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,92 +10,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Processor class
- *
+ * ProcessorOmaha class
+ * <p>
  * The purpose here is to process each line evaluate it and
  * return the final result.
  */
-class Processor {
-    /**
-     * Line processing method
-     *
-     * It gets the full line as string:
-     * HandA:Ac-Kd-Jd-3d HandB:5c-5d-6c-7d Board:Ah-Kh-5s-2s-Qd
-     *
-     * @param line String
-     * @return String
-     */
-    String processLine (String line) {
-        System.out.println(line);
-        String[] hands = line.split("[\\s:]");
-        String message;
-        try {
-            Hand handOne = new Hand(hands[1], hands[5]);
-            processHand(handOne);
-
-            Hand handTwo = new Hand(hands[3], hands[5]);
-            processHand(handTwo);
-
-            String hi = evaluateHiHand(handOne, handTwo);
-            String lo = evaluateLoHand(handOne, handTwo);
-            message = String.format("%s; %s", hi, lo);
-        } catch (ErrorHand errorHand) {
-            message = " Error in hand/board";
-        } catch (ErrorCard errorCard) {
-            message = " Error in card";
-        }
-
-        return String.format("%s\n=> %s\n", line, message);
-    }
-
-    /**
-     * Determine Hi Hand winner
-     *
-     * Works with already evaluated line.
-     *
-     * @param handOne HandA evaluated
-     * @param handTwo HandB evaluated
-     * @return String
-     */
-    private String evaluateHiHand(Hand handOne, Hand handTwo) {
-        if (handOne.getHiScore() > handTwo.getHiScore()) {
-            return String.format("HandA wins Hi (%s)", handOne.getRank().getDescription());
-        } else if (handOne.getHiScore() < handTwo.getHiScore()) {
-            return String.format("HandB wins Hi (%s)", handTwo.getRank().getDescription());
-        }
-        return String.format("Split Pot Hi (%s)", handOne.getRank().getDescription());
-    }
-
-    /**
-     * Determine Lo Hand winner
-     *
-     * Works with already evaluated line.
-     *
-     * @param handOne HandA evaluated
-     * @param handTwo HandB evaluated
-     * @return String
-     */
-    private String evaluateLoHand(Hand handOne, Hand handTwo) {
-        if (handOne.getLoScore() == null && handTwo.getLoScore() == null) {
-            return "No hand qualified for Low";
-        }
-
-        Integer loOne = (handOne.getLoScore() == null) ? 100 : handOne.getLoScore();
-        Integer loTwo = (handTwo.getLoScore() == null) ? 100 : handTwo.getLoScore();
-        if (loOne < loTwo) {
-            return String.format("HandA wins Lo (%s)", handOne.toStringLoHand());
-        } else if (loOne > loTwo) {
-            return String.format("HandB wins Lo (%s)", handTwo.toStringLoHand());
-        }
-        return String.format("Split Pot Lo (%s)", handOne.toStringLoHand());
-    }
-
-
+class ProcessorOmaha implements Processor<HandOmaha> {
     /**
      * Start the cards processing
-     * @param hand Hand to be processed
+     *
+     * @param hand HandOmaha to be processed
      */
-    private void processHand(Hand hand) {
+    public void processHand(HandOmaha hand) {
         ArrayList<Card> evalHand = hand.getHand();
         ArrayList<Card> evalBoard = hand.getBoard();
 
@@ -127,9 +52,9 @@ class Processor {
      * Evaluate for Straight Flush
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processStraightFlush(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processStraightFlush(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         boolean found = isSameSuit(currentHand);
         Integer totalRating = null;
         if (found) {
@@ -158,9 +83,9 @@ class Processor {
      * Evaluate for 4 of a kind
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processFourOfAKind(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processFourOfAKind(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         boolean found = false;
         Map<Integer, Integer> ratings = ratingsData.ratings;
         if (ratings.size() == 2) {
@@ -187,9 +112,9 @@ class Processor {
      * Evaluate for Full house
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processFullHouse(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processFullHouse(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         HandEnum currentRank = HandEnum.FULL;
         if (ratingsData.ratings.size() > 2) {
             if (currentRank != hand.getRank()) {
@@ -205,9 +130,9 @@ class Processor {
      * Evaluate for Flush
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processFlush(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processFlush(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         boolean found = isSameSuit(currentHand);
 
         HandEnum currentRank = HandEnum.FLUSH;
@@ -225,9 +150,9 @@ class Processor {
      * Evaluate for Straight
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processStraight(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processStraight(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         Integer totalRating = evaluateForStraight(currentHand);
         if (totalRating == null) {
             ArrayList<Card> lowHand = lowerAces(currentHand);
@@ -251,9 +176,9 @@ class Processor {
      * Evaluate for 3 of a kind
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processTreeOfAKind(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processTreeOfAKind(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         boolean found = false;
         Map<Integer, Integer> ratings = ratingsData.ratings;
         if (ratings.size() == 3) {
@@ -280,9 +205,9 @@ class Processor {
      * Evaluate for two pairs
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processTwoPair(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processTwoPair(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         HandEnum currentRank = HandEnum.TWO_PAIR;
         if (ratingsData.ratings.size() > 3) {
             if (currentRank != hand.getRank()) {
@@ -298,9 +223,9 @@ class Processor {
      * Evaluate for one pair
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processPair(ArrayList<Card> currentHand, RatingData ratingsData, Hand hand) {
+    private void processPair(ArrayList<Card> currentHand, RatingData ratingsData, HandOmaha hand) {
         HandEnum currentRank = HandEnum.ONE_PAIR;
         if (ratingsData.ratings.size() == 4) {
             if (currentRank != hand.getRank()) {
@@ -316,9 +241,9 @@ class Processor {
      * Evaluate for high card
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processHighCard(ArrayList<Card> currentHand, Hand hand) {
+    private void processHighCard(ArrayList<Card> currentHand, HandOmaha hand) {
         Integer current = currentHand.get(4).getRating();
         HandEnum currentRank = HandEnum.HIGH_CARD;
         if (current > hand.getHiScore()) {
@@ -332,9 +257,9 @@ class Processor {
      * Evaluate for Low card
      *
      * @param currentHand ArrayList of Cards
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void processLowCard(ArrayList<Card> currentHand, Hand hand) {
+    private void processLowCard(ArrayList<Card> currentHand, HandOmaha hand) {
         ArrayList<Card> lowHand = lowerAces(currentHand);
         if (lowHand != null) {
             currentHand = lowHand;
@@ -358,9 +283,9 @@ class Processor {
      * @param ratingTotal Total rating of the hand
      * @param currentRank The hand rank
      * @param currentHand Currently evaluated hand
-     * @param hand Hand to be processed
+     * @param hand        HandOmaha to be processed
      */
-    private void setHandRatings(Integer ratingTotal, HandEnum currentRank, ArrayList<Card> currentHand, Hand hand) {
+    private void setHandRatings(Integer ratingTotal, HandEnum currentRank, ArrayList<Card> currentHand, HandOmaha hand) {
         double totalRating = Math.pow(ratingTotal, currentRank.getRank());
         if (totalRating > hand.getHiScore()) {
             hand.setHiScore(totalRating);
@@ -375,7 +300,7 @@ class Processor {
      * @param currentHand ArrayList of Cards
      */
     private ArrayList<Card> lowerAces(ArrayList<Card> currentHand) {
-        ArrayList<Card> lowerAcesHand = (ArrayList) currentHand.clone();
+        ArrayList<Card> lowerAcesHand = (ArrayList<Card>) currentHand.clone();
         Card lastCard = lowerAcesHand.get(4);
         if (lastCard.isDoubleRated()) {
             lowerAcesHand.add(0, new Card(lastCard, Constants.DOUBLE_RATED_SECOND));

@@ -3,14 +3,15 @@ package com.stars.entities;
 import com.stars.HandEnum;
 import com.stars.errors.ErrorCard;
 import com.stars.errors.ErrorHand;
+import com.stars.interfaces.Hand;
 
 import java.util.*;
 
 /**
- * Hand evaluation class
+ * HandOmaha evaluation class
  * Uses given hand and the board cards to determine the hand ranking
  */
-public class Hand {
+public class HandOmaha implements Hand {
     private ArrayList<Card> hand;
     private ArrayList<Card> board;
 
@@ -24,12 +25,12 @@ public class Hand {
     /**
      * Builds the hand data
      *
-     * @param hand  Hand string
+     * @param hand  HandOmaha string
      * @param board Board string
      * @throws ErrorHand if error in hand
      * @throws ErrorCard if error in cards
      */
-    public Hand(String hand, String board) throws ErrorHand, ErrorCard {
+    public HandOmaha(String hand, String board) throws ErrorHand, ErrorCard {
         String[] _hand = hand.split("-");
         String[] _board = board.split("-");
         if (_hand.length == 4 && _board.length == 5) {

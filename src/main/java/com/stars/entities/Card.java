@@ -9,6 +9,7 @@ import com.stars.errors.ErrorCard;
  * 1. card data
  * 2. if it is double rated
  * 3. Card rating
+ *
  * @see Constants RATINGS
  * 4. Card suit
  * @see Constants COLORS
@@ -34,7 +35,7 @@ public class Card {
      * @param card Card string 2 letter representation
      * @throws ErrorCard if unknown card is found
      */
-    Card (String card) throws ErrorCard {
+    public Card(String card) throws ErrorCard {
         cardData = card.split("");
         rating = Constants.RATINGS.get(cardData[0].toUpperCase());
         suit = Constants.COLORS.get(cardData[1].toLowerCase());
@@ -48,7 +49,7 @@ public class Card {
      * Used to create new Card object with new rating
      * This is helper for double rated cards.
      *
-     * @param card Card object
+     * @param card    Card object
      * @param newCard New card rating symbol
      */
     public Card(Card card, String newCard) {
@@ -58,7 +59,8 @@ public class Card {
     }
 
     /**
-     *  Card rating
+     * Card rating
+     *
      * @return numeric representation of the card rating
      */
     public Integer getRating() {
@@ -67,22 +69,25 @@ public class Card {
 
     /**
      * Card inverted rating
+     *
      * @return numeric representation of the card rating inverted
      */
-    Integer getRatingLo () {
+    public Integer getRatingLo() {
         return rating * -1;
     }
 
     /**
      * Card data
+     *
      * @return full card data
      */
-    String[] getCardData () {
+    public String[] getCardData() {
         return cardData;
     }
 
     /**
      * Suit data
+     *
      * @return numerical representation of the suit
      */
     public Integer getSuit() {
@@ -91,6 +96,7 @@ public class Card {
 
     /**
      * Card is double rated or not
+     *
      * @return if card is double rated
      */
     public boolean isDoubleRated() {
@@ -99,6 +105,7 @@ public class Card {
 
     /**
      * Card as a string
+     *
      * @return string of the card
      */
     @Override
